@@ -705,7 +705,7 @@ async function syncData() {
   const btn = document.getElementById('syncBtn');
   btn.classList.add('spinning');
   try {
-    const res = await fetch(SCRIPT_URL + '?action=getAll', { mode: 'cors' });
+    const res = await fetch(SCRIPT_URL + '?action=getAll', { mode: 'no-cors' });
     const json = await res.json();
     if (json.status === 'ok') {
       allData = json.data;

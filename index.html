@@ -244,160 +244,107 @@
   .expense-paid  { font-size: 11px; font-weight: 600; margin-top: 3px; }
 
   .cat-badge {
-    display: inline-block; padding: 2px 8px; border-radius: 999px;
-    font-size: 11px; font-weight: 600;
+    display: inline-block; padding: 2px 8px; border-radius: 4px;
+    font-size: 10px; font-weight: 700; background: var(--cream-dark); color: var(--text-mid);
   }
 
-  .empty-state {
-    text-align: center; padding: 48px 20px;
-    color: var(--text-light);
-  }
-  .empty-state .emoji { font-size: 48px; margin-bottom: 12px; }
-  .empty-state p { font-size: 15px; }
-
-  /* ── Edit modal ───────────────────────────────────────────── */
+  /* ── Modals ───────────────────────────────────────────────── */
   .modal-overlay {
-    position: fixed; inset: 0; background: rgba(44,35,56,0.6);
-    z-index: 200; display: none; align-items: flex-end;
-    backdrop-filter: blur(4px);
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(44,35,56,0.4); backdrop-filter: blur(4px);
+    display: flex; align-items: flex-end; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.25s ease; z-index: 1000;
   }
-  .modal-overlay.open { display: flex; }
+  .modal-overlay.show { opacity: 1; pointer-events: auto; }
   .modal {
-    width: 100%; max-width: 480px; margin: 0 auto;
-    background: var(--white); border-radius: 24px 24px 0 0;
-    padding: 24px 20px 40px;
-    animation: slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);
-    max-height: 90dvh; overflow-y: auto;
+    background: var(--white); width: 100%; max-width: 480px;
+    border-radius: var(--radius) var(--radius) 0 0;
+    padding: 24px 20px calc(24px + env(safe-area-inset-bottom));
+    transform: translateY(100%); transition: transform 0.25s cubic-bezier(0.1, 0.76, 0.55, 0.94);
   }
-  @keyframes slideUp {
-    from { transform: translateY(100%); }
-    to   { transform: translateY(0); }
-  }
-  .modal-handle {
-    width: 40px; height: 4px; background: var(--cream-dark);
-    border-radius: 2px; margin: 0 auto 20px;
-  }
-  .modal-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 20px; font-weight: 600; margin-bottom: 20px;
-  }
+  .modal-overlay.show .modal { transform: translateY(0); }
+
+  .modal-handle { width: 40px; height: 4px; background: var(--cream-dark); border-radius: 2px; margin: 0 auto 20px; }
+  .modal-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 600; margin-bottom: 20px; }
+  
   .btn-danger {
-    width: 100%; padding: 14px;
-    background: #FEE2E2; color: var(--danger);
-    font-size: 15px; font-weight: 600;
-    border-radius: var(--radius-sm); margin-top: 10px;
-    transition: background 0.2s;
+    width: 100%; padding: 14px; background: #FEE2E2; color: var(--danger);
+    font-size: 15px; font-weight: 600; border-radius: var(--radius-sm);
+    margin-top: 10px; transition: background 0.2s;
   }
   .btn-danger:active { background: #FECACA; }
 
   /* ── Summary screen ───────────────────────────────────────── */
   .summary-hero {
     background: linear-gradient(135deg, var(--plum) 0%, var(--plum-mid) 100%);
-    border-radius: var(--radius);
-    padding: 22px 20px;
-    margin-bottom: 12px;
-    color: white;
+    border-radius: var(--radius); padding: 22px 20px; margin-bottom: 12px; color: white;
     position: relative; overflow: hidden;
   }
   .summary-hero::before {
-    content: '';
-    position: absolute; top: -30px; right: -30px;
-    width: 120px; height: 120px;
-    background: rgba(255,255,255,0.06);
-    border-radius: 50%;
+    content: ''; position: absolute; top: -30px; right: -30px;
+    width: 120px; height: 120px; background: rgba(255,255,255,0.06); border-radius: 50%;
   }
-  .summary-hero::after {
-    content: '';
-    position: absolute; bottom: -40px; right: 20px;
-    width: 80px; height: 80px;
-    background: rgba(255,255,255,0.04);
-    border-radius: 50%;
-  }
-  .hero-label { font-size: 12px; opacity: 0.7; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px; }
-  .hero-amount { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 700; }
-  .hero-month  { font-size: 13px; opacity: 0.8; margin-top: 2px; }
-  .hero-split  { display: flex; gap: 20px; margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.2); }
-  .split-item  { flex: 1; }
-  .split-name  { font-size: 11px; opacity: 0.7; margin-bottom: 2px; }
-  .split-amt   { font-size: 18px; font-weight: 700; }
+  
+  .hero-label { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--plum-light); font-weight: 600; }
+  .hero-amount { font-size: 32px; font-weight: 700; margin: 6px 0 14px; font-family: 'Playfair Display', serif; }
+  .hero-footer { display: flex; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 12px; font-size: 12px; color: var(--plum-faint); }
 
-  .summary-month-select {
-    width: 100%; padding: 11px 14px;
-    border: 1.5px solid var(--cream-dark);
-    border-radius: var(--radius-sm);
-    font-size: 14px; font-weight: 600;
-    color: var(--text); background: var(--white);
-    margin-bottom: 12px; outline: none;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%237D3C98' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 14px center;
-  }
+  .breakdown-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
+  .breakdown-row:last-child { margin-bottom: 0; }
+  .breakdown-label { color: var(--text-mid); display: flex; align-items: center; gap: 6px; }
+  .breakdown-val { font-weight: 600; color: var(--text); }
 
-  .cat-row {
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 0; border-bottom: 1px solid var(--cream-dark);
-  }
-  .cat-row:last-child { border-bottom: none; }
-  .cat-icon-sm {
-    width: 32px; height: 32px; border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 15px; flex-shrink: 0;
-  }
-  .cat-name { flex: 1; font-size: 14px; font-weight: 500; }
-  .cat-bar-wrap { flex: 2; height: 6px; background: var(--cream-dark); border-radius: 3px; overflow: hidden; }
-  .cat-bar { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
-  .cat-amt { font-size: 14px; font-weight: 700; min-width: 80px; text-align: right; }
+  /* Category Progress Bars */
+  .sum-cat-row { margin-bottom: 14px; }
+  .sum-cat-meta { display: flex; justify-content: space-between; font-size: 13px; font-weight: 500; margin-bottom: 6px; }
+  .sum-cat-label { color: var(--text); display: flex; align-items: center; gap: 6px; }
+  .sum-cat-val { font-weight: 600; color: var(--text-mid); }
+  .progress-bg { width: 100%; height: 6px; background: var(--cream-dark); border-radius: 3px; overflow: hidden; }
+  .progress-bar { height: 100%; width: 0%; transition: width 0.4s ease; }
 
-  .loading-screen {
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    min-height: 60dvh; gap: 16px;
-  }
-  .spinner {
-    width: 40px; height: 40px;
-    border: 3px solid var(--cream-dark);
-    border-top-color: var(--plum-mid);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
+  /* Progress Bar Custom Coloring */
+  #sum-bar-food { background: #CA8A04; }
+  #sum-bar-transport { background: #1D4ED8; }
+  #sum-bar-bills { background: #DB2777; }
+  #sum-bar-groceries { background: #059669; }
+  #sum-bar-entertainment { background: #7C3AED; }
+  #sum-bar-medicine { background: #DC2626; }
+  #sum-bar-other { background: #6B7280; }
 
   /* Config banner */
   .config-banner {
-    background: #FEF3C7; border: 1.5px solid #F59E0B;
-    border-radius: var(--radius-sm); padding: 14px;
-    margin-bottom: 14px; font-size: 13px; color: #92400E;
-    line-height: 1.5;
+    background: #FEF3C7; border: 1.5px solid #F59E0B; border-radius: var(--radius-sm);
+    padding: 14px; margin-bottom: 14px; font-size: 13px; color: #92400E; line-height: 1.5;
   }
   .config-banner strong { display: block; margin-bottom: 4px; font-size: 14px; }
-
 </style>
+
+<script src="config.js"></script>
+<script src="script.js"></script>
 </head>
 <body>
+
 <div id="app">
 
-  <!-- Top bar -->
   <div class="topbar">
     <div class="topbar-inner">
       <div>
         <h1>💰 Expense Tracker</h1>
-        <div class="subtitle" id="topbar-subtitle">Gayath & Dharani</div>
+        <div class="subtitle" id="topbar-subtitle">Loading settings...</div>
       </div>
       <button class="sync-btn" id="syncBtn" title="Sync data" onclick="syncData()">🔄</button>
     </div>
   </div>
 
-  <!-- Config banner (shown if not configured) -->
   <div id="configBanner" class="config-banner" style="margin:12px 16px 0; display:none;">
     <strong>⚙️ Setup required</strong>
-    Open <code>config.js</code> and paste your Google Apps Script URL to connect your Google Sheet.
+    Open <code>config.js</code> and paste your Google Apps Script Deployment Web App URL to link up your workbook backend sheet.
   </div>
 
-  <!-- ── ADD screen ─────────────────────────────────── -->
   <div class="screen active" id="screen-add">
     <div class="card">
       <div class="card-title">New Expense</div>
-
+      
       <div class="form-group">
         <label class="form-label">Date</label>
         <input type="date" id="inp-date" class="form-control">
@@ -421,30 +368,27 @@
         <div class="paid-group" id="paid-pills">
           <div class="paid-pill" data-val="Gayath">👤 Gayath</div>
           <div class="paid-pill" data-val="Dharani">👤 Dharani</div>
-          <div class="paid-pill" data-val="Both">🤝 Both</div>
+          <div class="paid-pill" data-val="Both">👥 Both</div>
         </div>
       </div>
 
       <div class="form-group">
         <label class="form-label">Amount (LKR)</label>
-        <input type="number" id="inp-amount" class="form-control" placeholder="0.00" inputmode="decimal" step="0.01">
+        <input type="number" id="inp-amount" class="form-control" placeholder="0.00" inputmode="decimal">
       </div>
 
       <div class="form-group">
-        <label class="form-label">Notes <span style="color:var(--text-light);font-weight:400">(optional)</span></label>
-        <input type="text" id="inp-notes" class="form-control" placeholder="What was it for?">
+        <label class="form-label">Notes</label>
+        <input type="text" id="inp-notes" class="form-control" placeholder="What was this for?">
       </div>
 
-      <button class="btn-primary" id="addBtn" onclick="addExpense()">Add Expense</button>
+      <button class="btn-primary" id="addBtn" onclick="addExpense()">Save Expense</button>
     </div>
   </div>
 
-  <!-- ── BROWSE screen ──────────────────────────────── -->
   <div class="screen" id="screen-browse">
-    <div class="month-selector" id="month-selector"></div>
-
-    <div class="filter-bar" id="filter-bar">
-      <div class="filter-chip active" data-filter="all">All</div>
+    <div class="filter-bar">
+      <div class="filter-chip active" data-filter="All">All</div>
       <div class="filter-chip" data-filter="Food">🍽️ Food</div>
       <div class="filter-chip" data-filter="Transport">🚗 Transport</div>
       <div class="filter-chip" data-filter="Bills">💡 Bills</div>
@@ -452,50 +396,112 @@
       <div class="filter-chip" data-filter="Entertainment">🎬 Entertainment</div>
       <div class="filter-chip" data-filter="Medicine">💊 Medicine</div>
       <div class="filter-chip" data-filter="Other">📦 Other</div>
-      <div class="filter-chip" data-filter="Gayath">👤 Gayath</div>
-      <div class="filter-chip" data-filter="Dharani">👤 Dharani</div>
-      <div class="filter-chip" data-filter="Both">🤝 Both</div>
     </div>
 
-    <div id="browse-list"></div>
+    <div class="month-selector" id="browse-months"></div>
+
+    <div id="expense-list"></div>
   </div>
 
-  <!-- ── SUMMARY screen ─────────────────────────────── -->
   <div class="screen" id="screen-summary">
-    <select class="summary-month-select" id="summary-month-select" onchange="renderSummary()"></select>
+    <div class="form-group" style="margin-bottom:12px;">
+      <select id="summary-month-select" class="form-control" onchange="renderSummary()" style="font-weight:600;">
+        <option value="January">January</option>
+        <option value="February">February</option>
+        <option value="March">March</option>
+        <option value="April">April</option>
+        <option value="May" selected>May</option>
+        <option value="June">June</option>
+        <option value="July">July</option>
+        <option value="August">August</option>
+        <option value="September">September</option>
+        <option value="October">October</option>
+        <option value="November">November</option>
+        <option value="December">December</option>
+      </select>
+    </div>
 
-    <div class="summary-hero" id="summary-hero">
+    <div class="summary-hero">
       <div class="hero-label">Total Spent</div>
-      <div class="hero-amount" id="hero-total">LKR 0</div>
-      <div class="hero-month"  id="hero-month">—</div>
-      <div class="hero-split">
-        <div class="split-item">
-          <div class="split-name">Gayath</div>
-          <div class="split-amt" id="hero-gayath">0</div>
-        </div>
-        <div class="split-item">
-          <div class="split-name">Dharani</div>
-          <div class="split-amt" id="hero-dharani">0</div>
-        </div>
-        <div class="split-item">
-          <div class="split-name">Shared</div>
-          <div class="split-amt" id="hero-both">0</div>
-        </div>
+      <div class="hero-amount" id="hero-total">LKR 0.00</div>
+      <div class="hero-footer">
+        <span>Monthly Overview</span>
+        <span id="hero-month" style="font-weight:600;">May</span>
       </div>
     </div>
 
     <div class="card">
-      <div class="card-title">By Category</div>
-      <div id="cat-breakdown"></div>
+      <div class="card-title">Share Breakdown</div>
+      <div class="breakdown-row">
+        <div class="breakdown-label"><span style="color:#1D4ED8">👤</span> Gayath Paid</div>
+        <div class="breakdown-val" id="breakdown-gayath">LKR 0.00</div>
+      </div>
+      <div class="breakdown-row">
+        <div class="breakdown-label"><span style="color:#7C3AED">👤</span> Dharani Paid</div>
+        <div class="breakdown-val" id="breakdown-dharani">LKR 0.00</div>
+      </div>
+      <div class="breakdown-row">
+        <div class="breakdown-label"><span style="color:#059669">👥</span> Shared (Both)</div>
+        <div class="breakdown-val" id="breakdown-both">LKR 0.00</div>
+      </div>
     </div>
 
     <div class="card">
-      <div class="card-title">Spending Chart</div>
-      <canvas id="summaryChart" height="200"></canvas>
+      <div class="card-title">Category Spending</div>
+      
+      <div class="sum-cat-row">
+        <div class="sum-cat-meta">
+          <div class="sum-cat-label">🍽️ Food</div>
+          <div class="sum-cat-val" id="sum-txt-food">LKR 0.00</div>
+        </div>
+        <div class="progress-bg"><div class="progress-bar" id="sum-bar-food"></div></div>
+      </div>
+      <div class="sum-cat-row">
+        <div class="sum-cat-meta">
+          <div class="sum-cat-label">🚗 Transport</div>
+          <div class="sum-cat-val" id="sum-txt-transport">LKR 0.00</div>
+        </div>
+        <div class="progress-bg"><div class="progress-bar" id="sum-bar-transport"></div></div>
+      </div>
+      <div class="sum-cat-row">
+        <div class="sum-cat-meta">
+          <div class="sum-cat-label">💡 Bills</div>
+          <div class="sum-cat-val" id="sum-txt-bills">LKR 0.00</div>
+        </div>
+        <div class="progress-bg"><div class="progress-bar" id="sum-bar-bills"></div></div>
+      </div>
+      <div class="sum-cat-row">
+        <div class="sum-cat-meta">
+          <div class="sum-cat-label">🛒 Groceries</div>
+          <div class="sum-cat-val" id="sum-txt-groceries">LKR 0.00</div>
+        </div>
+        <div class="progress-bg"><div class="progress-bar" id="sum-bar-groceries"></div></div>
+      </div>
+      <div class="sum-cat-row">
+        <div class="sum-cat-meta">
+          <div class="sum-cat-label">🎬 Entertainment</div>
+          <div class="sum-cat-val" id="sum-txt-entertainment">LKR 0.00</div>
+        </div>
+        <div class="progress-bg"><div class="progress-bar" id="sum-bar-entertainment"></div></div>
+      </div>
+      <div class="sum-cat-row">
+        <div class="sum-cat-meta">
+          <div class="sum-cat-label">💊 Medicine</div>
+          <div class="sum-cat-val" id="sum-txt-medicine">LKR 0.00</div>
+        </div>
+        <div class="progress-bg"><div class="progress-bar" id="sum-bar-medicine"></div></div>
+      </div>
+      <div class="sum-cat-row">
+        <div class="sum-cat-meta">
+          <div class="sum-cat-label">📦 Other</div>
+          <div class="sum-cat-val" id="sum-txt-other">LKR 0.00</div>
+        </div>
+        <div class="progress-bg"><div class="progress-bar" id="sum-bar-other"></div></div>
+      </div>
+
     </div>
   </div>
 
-  <!-- Bottom Nav -->
   <nav class="bottom-nav">
     <button class="nav-item active" onclick="showScreen('add')" id="nav-add">
       <span class="icon">➕</span>
@@ -513,17 +519,20 @@
 
 </div>
 
-<!-- Edit Modal -->
+<div class="toast" id="toast"></div>
+
 <div class="modal-overlay" id="editModal">
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title">Edit Expense</div>
+    
     <input type="hidden" id="edit-row-index">
-
+    
     <div class="form-group">
       <label class="form-label">Date</label>
       <input type="date" id="edit-date" class="form-control">
     </div>
+
     <div class="form-group">
       <label class="form-label">Category</label>
       <div class="pill-group" id="edit-cat-pills">
@@ -536,495 +545,31 @@
         <div class="pill" data-val="Other">📦 Other</div>
       </div>
     </div>
+
     <div class="form-group">
       <label class="form-label">Paid By</label>
       <div class="paid-group" id="edit-paid-pills">
         <div class="paid-pill" data-val="Gayath">👤 Gayath</div>
         <div class="paid-pill" data-val="Dharani">👤 Dharani</div>
-        <div class="paid-pill" data-val="Both">🤝 Both</div>
+        <div class="paid-pill" data-val="Both">👥 Both</div>
       </div>
     </div>
+
     <div class="form-group">
       <label class="form-label">Amount (LKR)</label>
-      <input type="number" id="edit-amount" class="form-control" inputmode="decimal" step="0.01">
+      <input type="number" id="edit-amount" class="form-control" inputmode="decimal">
     </div>
+
     <div class="form-group">
       <label class="form-label">Notes</label>
       <input type="text" id="edit-notes" class="form-control">
     </div>
-    <button class="btn-primary" onclick="saveEdit()">Save Changes</button>
-    <button class="btn-danger" onclick="deleteExpense()">🗑️ Delete Expense</button>
-    <button style="width:100%;padding:13px;color:var(--text-mid);font-size:14px;margin-top:6px;" onclick="closeModal()">Cancel</button>
+
+    <button class="btn-primary" onclick="updateExpense()">Update Details</button>
+    <button class="btn-danger" onclick="deleteExpense()">Delete Expense</button>
+    <button class="btn-primary" style="background:var(--cream-dark); color:var(--text); margin-top:8px;" onclick="closeModal()">Cancel</button>
   </div>
 </div>
 
-<!-- Toast -->
-<div class="toast" id="toast"></div>
-
-<script>
-// ── Config ──────────────────────────────────────────────────────────────────
-// REPLACE this URL with your Google Apps Script deployment URL
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyH6xCmfpr0QYK8dmGg6OCxv8x8XfNIsqHJKtj-zITg0jzpPqMzRaIve2vI7sWuKnmCGA/exec';
-
-const MONTHS = ['January','February','March','April','May','June',
-                'July','August','September','October','November','December'];
-
-const CAT_META = {
-  Food:          { emoji:'🍽️', color:'#CA8A04', bg:'#FEF9C3' },
-  Transport:     { emoji:'🚗', color:'#1D4ED8', bg:'#DBEAFE' },
-  Bills:         { emoji:'💡', color:'#DB2777', bg:'#FCE7F3' },
-  Groceries:     { emoji:'🛒', color:'#059669', bg:'#D1FAE5' },
-  Entertainment: { emoji:'🎬', color:'#7C3AED', bg:'#EDE9FE' },
-  Medicine:      { emoji:'💊', color:'#DC2626', bg:'#FEE2E2' },
-  Other:         { emoji:'📦', color:'#6B7280', bg:'#F3F4F6' },
-};
-const PAID_META = {
-  Gayath:  { color:'#1D4ED8', bg:'#DBEAFE' },
-  Dharani: { color:'#7C3AED', bg:'#EDE9FE' },
-  Both:    { color:'#059669', bg:'#D1FAE5' },
-};
-
-// ── State ───────────────────────────────────────────────────────────────────
-let allData = {};   // { January: [ {date,cat,paid,amount,notes,row}, ... ], ... }
-let summaryChart = null;
-let currentBrowseMonth = MONTHS[new Date().getMonth()];
-let currentBrowseFilter = 'all';
-let selectedCat  = '';
-let selectedPaid = '';
-let editCat      = '';
-let editPaid     = '';
-
-// ── Init ────────────────────────────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded', () => {
-  // Set today's date
-  document.getElementById('inp-date').value = today();
-
-  // Check config
-  if (SCRIPT_URL === 'YOUR_APPS_SCRIPT_URL_HERE') {
-    document.getElementById('configBanner').style.display = 'block';
-  }
-
-  // Build month selector for browse
-  buildMonthSelector();
-  buildSummaryMonthSelect();
-
-  // Pill listeners
-  setupPills('cat-pills', v => { selectedCat = v; });
-  setupPills('paid-pills', v => { selectedPaid = v; });
-  setupPills('edit-cat-pills', v => { editCat = v; });
-  setupPills('edit-paid-pills', v => { editPaid = v; });
-
-  // Filter chips
-  document.querySelectorAll('.filter-chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-      chip.classList.add('active');
-      currentBrowseFilter = chip.dataset.filter;
-      renderBrowse();
-    });
-  });
-
-  // Load data
-  syncData();
-});
-
-function today() {
-  return new Date().toISOString().split('T')[0];
-}
-
-// ── Navigation ───────────────────────────────────────────────────────────────
-function showScreen(name) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('screen-' + name).classList.add('active');
-  document.getElementById('nav-' + name).classList.add('active');
-  if (name === 'browse') renderBrowse();
-  if (name === 'summary') renderSummary();
-}
-
-// ── Pill selector helper ─────────────────────────────────────────────────────
-function setupPills(containerId, callback) {
-  document.getElementById(containerId).querySelectorAll('.pill, .paid-pill').forEach(pill => {
-    pill.addEventListener('click', () => {
-      const parent = document.getElementById(containerId);
-      parent.querySelectorAll('.pill, .paid-pill').forEach(p => p.classList.remove('selected'));
-      pill.classList.add('selected');
-      callback(pill.dataset.val);
-    });
-  });
-}
-
-function selectPill(containerId, value) {
-  document.getElementById(containerId).querySelectorAll('.pill, .paid-pill').forEach(p => {
-    p.classList.toggle('selected', p.dataset.val === value);
-  });
-}
-
-// ── Month helpers ────────────────────────────────────────────────────────────
-function monthFromDate(dateStr) {
-  if (!dateStr) return MONTHS[new Date().getMonth()];
-  const d = new Date(dateStr + 'T00:00:00');
-  return MONTHS[d.getMonth()];
-}
-
-function buildMonthSelector() {
-  const el = document.getElementById('month-selector');
-  MONTHS.forEach(m => {
-    const chip = document.createElement('div');
-    chip.className = 'month-chip' + (m === currentBrowseMonth ? ' active' : '');
-    chip.textContent = m.slice(0,3);
-    chip.addEventListener('click', () => {
-      document.querySelectorAll('.month-chip').forEach(c => c.classList.remove('active'));
-      chip.classList.add('active');
-      currentBrowseMonth = m;
-      renderBrowse();
-    });
-    el.appendChild(chip);
-  });
-  // Scroll to current month
-  setTimeout(() => {
-    const idx = MONTHS.indexOf(currentBrowseMonth);
-    const chips = el.querySelectorAll('.month-chip');
-    if (chips[idx]) chips[idx].scrollIntoView({ inline: 'center', behavior: 'smooth' });
-  }, 100);
-}
-
-function buildSummaryMonthSelect() {
-  const sel = document.getElementById('summary-month-select');
-  const cur = new Date().getMonth();
-  MONTHS.forEach((m, i) => {
-    const opt = document.createElement('option');
-    opt.value = m; opt.textContent = m + ' 2026';
-    if (i === cur) opt.selected = true;
-    sel.appendChild(opt);
-  });
-}
-
-// ── Secure JSONP Transport Architecture ──────────────────────────────────────
-function requestSecureData(urlParams) {
-  return new Promise((resolve, reject) => {
-    const callbackName = 'jsonp_' + Math.random().toString(36).substr(2, 9);
-    
-    window[callbackName] = function(data) {
-      delete window[callbackName];
-      document.getElementById(callbackName)?.remove();
-      resolve(data);
-    };
-    
-    const script = document.createElement('script');
-    script.id = callbackName;
-    script.src = `${SCRIPT_URL}?${urlParams}&callback=${callbackName}`;
-    script.onerror = () => reject(new Error('Network structure failure'));
-    document.body.appendChild(script);
-  });
-}
-
-function showLoading(show) {
-  const banner = document.getElementById('configBanner');
-  if (banner) {
-    if (show) {
-      banner.textContent = "Syncing with Google Database... Please wait.";
-      banner.style.display = 'block';
-      banner.style.background = 'var(--plum-mid)';
-    } else {
-      banner.style.display = 'none';
-    }
-  }
-}
-
-// ── Sync / Fetch data ────────────────────────────────────────────────────────
-async function syncData() {
-  showLoading(true);
-  try {
-    const json = await requestSecureData('action=getAll');
-
-    if (json.status === 'ok') {
-      // Maps back directly to allData array references to feed the browse and summary screen arrays
-      allData = json.expenses || {};
-      localStorage.setItem('expense_db', JSON.stringify(allData));
-      
-      if (document.getElementById('screen-browse').classList.contains('active')) {
-        renderBrowse();
-      }
-      if (document.getElementById('screen-summary').classList.contains('active')) {
-        renderSummary();
-      }
-      showToast('Synced with Google Sheet ✓', 'success');
-    } else {
-      showToast('Database syncing error', 'error');
-    }
-  } catch(e) {
-    console.error(e);
-    showToast('Connection error', 'error');
-  } finally {
-    showLoading(false);
-  }
-}
-
-// ── Add Expense ──────────────────────────────────────────────────────────────
-async function addExpense() {
-  const date   = document.getElementById('inp-date').value;
-  const amount = parseFloat(document.getElementById('inp-amount').value);
-  const notes  = document.getElementById('inp-notes').value.trim();
-
-  if (!date)          return showToast('Pick a date', 'error');
-  if (!selectedCat)  return showToast('Select a category', 'error');
-  if (!selectedPaid) return showToast('Select who paid', 'error');
-  if (!amount || amount <= 0) return showToast('Enter a valid amount', 'error');
-
-  const btn = document.getElementById('addBtn');
-  btn.disabled = true;
-  btn.textContent = 'Saving…';
-
-  const month = monthFromDate(date);
-
-  try {
-    const params = `action=add&month=${encodeURIComponent(month)}&date=${encodeURIComponent(date)}&category=${encodeURIComponent(selectedCat)}&paidBy=${encodeURIComponent(selectedPaid)}&amount=${encodeURIComponent(amount)}&notes=${encodeURIComponent(notes)}`;
-    const json = await requestSecureData(params);
-    
-    if (json.status === 'ok') {
-      showToast('Expense added! 🎉', 'success');
-      // Reset form fields
-      document.getElementById('inp-amount').value = '';
-      document.getElementById('inp-notes').value  = '';
-      document.getElementById('inp-date').value   = today();
-      document.getElementById('cat-pills').querySelectorAll('.pill').forEach(p => p.classList.remove('selected'));
-      document.getElementById('paid-pills').querySelectorAll('.paid-pill').forEach(p => p.classList.remove('selected'));
-      selectedCat = ''; selectedPaid = '';
-      
-      // Refresh matching table row sets
-      await syncData();
-    } else {
-      showToast('Error saving data', 'error');
-    }
-  } catch (e) {
-    console.error(e);
-    showToast('Connection error', 'error');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Add Expense';
-  }
-}
-
-// ── Browse ───────────────────────────────────────────────────────────────────
-function renderBrowse() {
-  const list    = document.getElementById('browse-list');
-  const monthData = (allData[currentBrowseMonth] || []).slice().reverse();
-  const filter  = currentBrowseFilter;
-
-  const filtered = monthData.filter(e => {
-    if (filter === 'all') return true;
-    return e.category === filter || e.paidBy === filter;
-  });
-
-  if (filtered.length === 0) {
-    list.innerHTML = `<div class="empty-state"><div class="emoji">🪙</div><p>No expenses found</p></div>`;
-    return;
-  }
-
-  const total = filtered.reduce((s, e) => s + parseFloat(e.amount || 0), 0);
-  let html = `<div style="font-size:12px;color:var(--text-light);margin-bottom:8px;font-weight:600;">${filtered.length} expenses · LKR ${fmt(total)}</div>`;
-
-  filtered.forEach(e => {
-    const m   = CAT_META[e.category] || CAT_META.Other;
-    const pm  = PAID_META[e.paidBy]  || PAID_META.Gayath;
-    
-    // Safety handling for inline row index keys matching physical target references
-    const rowId = e.row || e.rowIndex || "";
-    const cleanItem = {
-      row: rowId,
-      date: e.date,
-      category: e.category,
-      paidBy: e.paidBy,
-      amount: e.amount,
-      notes: e.notes || ""
-    };
-
-    html += `
-    <div class="expense-item" onclick="openEdit(${JSON.stringify(cleanItem).replace(/"/g, '&quot;')})">
-      <div class="expense-icon" style="background:${m.bg}">${m.emoji}</div>
-      <div class="expense-info">
-        <div class="expense-title">${e.notes || e.category}</div>
-        <div class="expense-meta">
-          <span class="cat-badge" style="background:${m.bg};color:${m.color}">${e.category}</span>
-          &nbsp;${formatDate(e.date)}
-        </div>
-      </div>
-      <div class="expense-right">
-        <div class="expense-amount">LKR ${fmt(e.amount)}</div>
-        <div class="expense-paid" style="color:${pm.color}">${e.paidBy}</div>
-      </div>
-    </div>`;
-  });
-
-  list.innerHTML = html;
-}
-
-// ── Summary ──────────────────────────────────────────────────────────────────
-function renderSummary() {
-  const month = document.getElementById('summary-month-select').value;
-  const data  = allData[month] || [];
-
-  const total   = data.reduce((s,e) => s + parseFloat(e.amount||0), 0);
-  const gayath  = data.filter(e=>e.paidBy==='Gayath').reduce((s,e)=>s+parseFloat(e.amount||0),0);
-  const dharani = data.filter(e=>e.paidBy==='Dharani').reduce((s,e)=>s+parseFloat(e.amount||0),0);
-  const both    = data.filter(e=>e.paidBy==='Both').reduce((s,e)=>s+parseFloat(e.amount||0),0);
-
-  document.getElementById('hero-total').textContent   = 'LKR ' + fmt(total);
-  document.getElementById('hero-month').textContent   = month + ' 2026';
-  document.getElementById('hero-gayath').textContent  = 'LKR ' + fmt(gayath);
-  document.getElementById('hero-dharani').textContent = 'LKR ' + fmt(dharani);
-  document.getElementById('hero-both').textContent    = 'LKR ' + fmt(both);
-
-  // Category breakdown
-  const cats = Object.keys(CAT_META);
-  const catTotals = {};
-  cats.forEach(c => {
-    catTotals[c] = data.filter(e=>e.category===c).reduce((s,e)=>s+parseFloat(e.amount||0),0);
-  });
-  const maxCat = Math.max(...Object.values(catTotals), 1);
-
-  let html = '';
-  cats.forEach(c => {
-    const m   = CAT_META[c];
-    const amt = catTotals[c];
-    if (amt === 0 && data.length > 0) return;
-    const pct = (amt / maxCat) * 100;
-    html += `
-    <div class="cat-row">
-      <div class="cat-icon-sm" style="background:${m.bg}">${m.emoji}</div>
-      <div class="cat-name">${c}</div>
-      <div class="cat-bar-wrap"><div class="cat-bar" style="width:${pct}%;background:${m.color}"></div></div>
-      <div class="cat-amt">LKR ${fmt(amt)}</div>
-    </div>`;
-  });
-  document.getElementById('cat-breakdown').innerHTML = html || '<p style="color:var(--text-light);font-size:14px;">No data for this month</p>';
-
-  // Chart
-  if (summaryChart) summaryChart.destroy();
-  const ctx = document.getElementById('summaryChart').getContext('2d');
-  const labels = cats.filter(c => catTotals[c] > 0);
-  const values = labels.map(c => catTotals[c]);
-  const colors = labels.map(c => CAT_META[c].color);
-  
-  summaryChart = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels,
-      datasets: [{ data: values, backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { position: 'bottom', labels: { font: { family: 'DM Sans', size: 12 }, padding: 12 } },
-        tooltip: {
-          callbacks: {
-            label: ctx => ` LKR ${fmt(ctx.raw)}  (${((ctx.raw/total)*100).toFixed(1)}%)`
-          }
-        }
-      }
-    }
-  });
-}
-
-// ── Edit / Delete ────────────────────────────────────────────────────────────
-function openEdit(expense) {
-  document.getElementById('edit-row-index').value = expense.row;
-  document.getElementById('edit-date').value      = expense.date;
-  document.getElementById('edit-amount').value    = expense.amount;
-  document.getElementById('edit-notes').value     = expense.notes || '';
-  editCat  = expense.category;
-  editPaid = expense.paidBy;
-  selectPill('edit-cat-pills',  editCat);
-  selectPill('edit-paid-pills', editPaid);
-  document.getElementById('editModal').classList.add('open');
-}
-
-function closeModal() {
-  document.getElementById('editModal').classList.remove('open');
-}
-
-document.getElementById('editModal').addEventListener('click', e => {
-  if (e.target === document.getElementById('editModal')) closeModal();
-});
-
-async function saveEdit() {
-  const row    = document.getElementById('edit-row-index').value;
-  const date   = document.getElementById('edit-date').value;
-  const amount = parseFloat(document.getElementById('edit-amount').value);
-  const notes  = document.getElementById('edit-notes').value.trim();
-
-  if (!editCat || !editPaid || !amount) return showToast('Fill all fields', 'error');
-
-  const month = monthFromDate(date);
-  showLoading(true);
-
-  try {
-    const params = `action=update&row=${row}&month=${encodeURIComponent(month)}&date=${encodeURIComponent(date)}&category=${encodeURIComponent(editCat)}&paidBy=${encodeURIComponent(editPaid)}&amount=${encodeURIComponent(amount)}&notes=${encodeURIComponent(notes)}`;
-    const json = await requestSecureData(params);
-    
-    if (json.status === 'ok') {
-      showToast('Updated ✓', 'success');
-      closeModal();
-      await syncData();
-    } else { 
-      showToast('Error updating', 'error'); 
-    }
-  } catch(e) { 
-    console.error(e);
-    showToast('Connection error', 'error'); 
-  } finally {
-    showLoading(false);
-  }
-}
-
-async function deleteExpense() {
-  if (!confirm('Delete this expense?')) return;
-  const row   = document.getElementById('edit-row-index').value;
-  const month = monthFromDate(document.getElementById('edit-date').value);
-  
-  showLoading(true);
-  try {
-    const params = `action=delete&row=${row}&month=${encodeURIComponent(month)}`;
-    const json = await requestSecureData(params);
-    
-    if (json.status === 'ok') {
-      showToast('Deleted ✓', 'success');
-      closeModal();
-      await syncData();
-    } else { 
-      showToast('Error deleting', 'error'); 
-    }
-  } catch(e) { 
-    console.error(e);
-    showToast('Connection error', 'error'); 
-  } finally {
-    showLoading(false);
-  }
-}
-
-// ── Helpers ──────────────────────────────────────────────────────────────────
-function fmt(n) {
-  return Number(n||0).toLocaleString('en-LK', { minimumFractionDigits:2, maximumFractionDigits:2 });
-}
-function formatDate(d) {
-  if (!d) return '';
-  // Formats row string or dates clean
-  let finalDate = d;
-  if (!isNaN(d) || typeof d === 'number') {
-    return `Day ${d}`;
-  }
-  const dt = new Date(finalDate + 'T00:00:00');
-  return dt.toLocaleDateString('en-GB', { day:'numeric', month:'short' });
-}
-function showToast(msg, type='') {
-  const t = document.getElementById('toast');
-  if (t) {
-    t.textContent = msg;
-    t.className = 'toast show ' + type;
-    setTimeout(() => t.className = 'toast', 3000);
-  }
-}
-</script>
 </body>
 </html>

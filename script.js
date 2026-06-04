@@ -25,45 +25,25 @@ function verifyConfig() {
 /**
  * Sends request safely via POST using x-www-form-urlencoded params
  */
-function requestSecureData(queryString) {
-  return new Promise((resolve, reject) => {
-    // Generate a uniquely identifiable callback name for this transaction
-    const callbackName = 'jsonp_' + Math.random().toString(36).substr(2, 9);
-    
-    // Create a fallback timeout if Google takes longer than 15 seconds
-    const timeoutId = setTimeout(() => {
-      cleanup();
-      reject(new Error("Connection timeout from Google Sheets. Check Web App URL."));
-    }, 15000);
+async function requestSecureData(queryString) {
+  if (!verifyConfig()) {
+    throw new Error("Google Apps Script URL is not configured in config.js");
+  }
 
-    // This is the global callback function Google will execute
-    window[callbackName] = function(data) {
-      cleanup();
-      resolve(data);
-    };
-
-    function cleanup() {
-      clearTimeout(timeoutId);
-      const scriptNode = document.getElementById(callbackName);
-      if (scriptNode) scriptNode.remove();
-      delete window[callbackName];
-    }
-
-    // Formulate the full delivery URL containing the secure callback hook
-    const separator = SCRIPT_URL.indexOf('?') === -1 ? '?' : '&';
-    const fullUrl = `${SCRIPT_URL}${separator}${queryString}&callback=${callbackName}`;
-
-    // Inject a script element to execute securely bypass-ing CORS
-    const script = document.createElement('script');
-    script.id = callbackName;
-    script.src = fullUrl;
-    script.onerror = () => {
-      cleanup();
-      reject(new Error("Network connection structural failure."));
-    };
-
-    document.body.appendChild(script);
+  const response = await fetch(CONFIG.SCRIPT_URL, {
+    method: 'POST',
+    mode: 'cors',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: queryString
   });
+
+  if (!response.ok) {
+    throw new Error(`Network unexpected response status: ${response.status}`);
+  }
+
+  return await response.json();
 }
 
 // ── Document Event Initialization ─────────────────────────────────────────────

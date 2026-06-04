@@ -700,38 +700,55 @@ function buildSummaryMonthSelect() {
   });
 }
 
+// ── Secure JSONP Transport Architecture ──────────────────────────────────────
+function requestSecureData(urlParams) {
+  return new Promise((resolve, reject) => {
+    const callbackName = 'jsonp_' + Math.random().toString(36).substr(2, 9);
+    
+    window[callbackName] = function(data) {
+      delete window[callbackName];
+      document.getElementById(callbackName)?.remove();
+      resolve(data);
+    };
+    
+    const script = document.createElement('script');
+    script.id = callbackName;
+    script.src = `${SCRIPT_URL}?${urlParams}&callback=${callbackName}`;
+    script.onerror = () => reject(new Error('Network structure failure'));
+    document.body.appendChild(script);
+  });
+}
+
+function showLoading(show) {
+  const banner = document.getElementById('configBanner');
+  if (banner) {
+    if (show) {
+      banner.textContent = "Syncing with Google Database... Please wait.";
+      banner.style.display = 'block';
+      banner.style.background = 'var(--plum-mid)';
+    } else {
+      banner.style.display = 'none';
+    }
+  }
+}
+
 // ── Sync / Fetch data ────────────────────────────────────────────────────────
 async function syncData() {
   showLoading(true);
   try {
-    // Create a unique temporary global handler name
-    const callbackName = 'jsonp_' + Math.random().toString(36).substr(2, 9);
-    
-    // Set up a promise that resolves when Google returns the data script package
-    const dataPromise = new Promise((resolve, reject) => {
-      window[callbackName] = function(data) {
-        delete window[callbackName];
-        resolve(data);
-      };
-      
-      // Inject a script tag to safely process the cross-origin request
-      const script = document.createElement('script');
-      script.src = `${SCRIPT_URL}?action=getAll&callback=${callbackName}`;
-      script.onerror = () => reject(new Error('Network structure failure'));
-      document.body.appendChild(script);
-    });
-
-    const json = await dataPromise;
+    const json = await requestSecureData('action=getAll');
 
     if (json.status === 'ok') {
-      // Process database tables natively inside your app UI loops
-      db.dashboard = json.dashboard;
-      db.expenses = json.expenses;
-      localStorage.setItem('expense_db', JSON.stringify(db));
+      // Maps back directly to allData array references to feed the browse and summary screen arrays
+      allData = json.expenses || {};
+      localStorage.setItem('expense_db', JSON.stringify(allData));
       
-      renderDashboard();
-      renderMonthDetails();
-      updateMonthSelectors();
+      if (document.getElementById('screen-browse').classList.contains('active')) {
+        renderBrowse();
+      }
+      if (document.getElementById('screen-summary').classList.contains('active')) {
+        renderSummary();
+      }
       showToast('Synced with Google Sheet ✓', 'success');
     } else {
       showToast('Database syncing error', 'error');
@@ -750,7 +767,7 @@ async function addExpense() {
   const amount = parseFloat(document.getElementById('inp-amount').value);
   const notes  = document.getElementById('inp-notes').value.trim();
 
-  if (!date)         return showToast('Pick a date', 'error');
+  if (!date)          return showToast('Pick a date', 'error');
   if (!selectedCat)  return showToast('Select a category', 'error');
   if (!selectedPaid) return showToast('Select who paid', 'error');
   if (!amount || amount <= 0) return showToast('Enter a valid amount', 'error');
@@ -760,42 +777,33 @@ async function addExpense() {
   btn.textContent = 'Saving…';
 
   const month = monthFromDate(date);
-  const day   = new Date(date + 'T00:00:00').getDate();
 
   try {
-    const res = await fetch(SCRIPT_URL, {
-      method: 'POST', mode: 'cors',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({
-        action: 'add',
-        month, day,
-        category: selectedCat,
-        paidBy: selectedPaid,
-        amount,
-        notes
-      })
-    });
-    const json = await res.json();
+    const params = `action=add&month=${encodeURIComponent(month)}&date=${encodeURIComponent(date)}&category=${encodeURIComponent(selectedCat)}&paidBy=${encodeURIComponent(selectedPaid)}&amount=${encodeURIComponent(amount)}&notes=${encodeURIComponent(notes)}`;
+    const json = await requestSecureData(params);
+    
     if (json.status === 'ok') {
       showToast('Expense added! 🎉', 'success');
-      // Reset form
+      // Reset form fields
       document.getElementById('inp-amount').value = '';
       document.getElementById('inp-notes').value  = '';
       document.getElementById('inp-date').value   = today();
       document.getElementById('cat-pills').querySelectorAll('.pill').forEach(p => p.classList.remove('selected'));
       document.getElementById('paid-pills').querySelectorAll('.paid-pill').forEach(p => p.classList.remove('selected'));
       selectedCat = ''; selectedPaid = '';
-      // Refresh data
+      
+      // Refresh matching table row sets
       await syncData();
     } else {
-      showToast('Error saving', 'error');
+      showToast('Error saving data', 'error');
     }
   } catch (e) {
+    console.error(e);
     showToast('Connection error', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Add Expense';
   }
-
-  btn.disabled = false;
-  btn.textContent = 'Add Expense';
 }
 
 // ── Browse ───────────────────────────────────────────────────────────────────
@@ -820,8 +828,20 @@ function renderBrowse() {
   filtered.forEach(e => {
     const m   = CAT_META[e.category] || CAT_META.Other;
     const pm  = PAID_META[e.paidBy]  || PAID_META.Gayath;
+    
+    // Safety handling for inline row index keys matching physical target references
+    const rowId = e.row || e.rowIndex || "";
+    const cleanItem = {
+      row: rowId,
+      date: e.date,
+      category: e.category,
+      paidBy: e.paidBy,
+      amount: e.amount,
+      notes: e.notes || ""
+    };
+
     html += `
-    <div class="expense-item" onclick="openEdit(${JSON.stringify(e).replace(/"/g, '&quot;')})">
+    <div class="expense-item" onclick="openEdit(${JSON.stringify(cleanItem).replace(/"/g, '&quot;')})">
       <div class="expense-icon" style="background:${m.bg}">${m.emoji}</div>
       <div class="expense-info">
         <div class="expense-title">${e.notes || e.category}</div>
@@ -886,6 +906,7 @@ function renderSummary() {
   const labels = cats.filter(c => catTotals[c] > 0);
   const values = labels.map(c => catTotals[c]);
   const colors = labels.map(c => CAT_META[c].color);
+  
   summaryChart = new Chart(ctx, {
     type: 'doughnut',
     data: {
@@ -936,40 +957,50 @@ async function saveEdit() {
   if (!editCat || !editPaid || !amount) return showToast('Fill all fields', 'error');
 
   const month = monthFromDate(date);
-  const day   = new Date(date + 'T00:00:00').getDate();
+  showLoading(true);
 
   try {
-    const res = await fetch(SCRIPT_URL, {
-      method: 'POST', mode: 'cors',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ action:'update', row, month, day, category:editCat, paidBy:editPaid, amount, notes })
-    });
-    const json = await res.json();
+    const params = `action=update&row=${row}&month=${encodeURIComponent(month)}&date=${encodeURIComponent(date)}&category=${encodeURIComponent(editCat)}&paidBy=${encodeURIComponent(editPaid)}&amount=${encodeURIComponent(amount)}&notes=${encodeURIComponent(notes)}`;
+    const json = await requestSecureData(params);
+    
     if (json.status === 'ok') {
       showToast('Updated ✓', 'success');
       closeModal();
       await syncData();
-    } else { showToast('Error updating', 'error'); }
-  } catch(e) { showToast('Connection error', 'error'); }
+    } else { 
+      showToast('Error updating', 'error'); 
+    }
+  } catch(e) { 
+    console.error(e);
+    showToast('Connection error', 'error'); 
+  } finally {
+    showLoading(false);
+  }
 }
 
 async function deleteExpense() {
   if (!confirm('Delete this expense?')) return;
   const row   = document.getElementById('edit-row-index').value;
   const month = monthFromDate(document.getElementById('edit-date').value);
+  
+  showLoading(true);
   try {
-    const res = await fetch(SCRIPT_URL, {
-      method: 'POST', mode: 'cors',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ action:'delete', row, month })
-    });
-    const json = await res.json();
+    const params = `action=delete&row=${row}&month=${encodeURIComponent(month)}`;
+    const json = await requestSecureData(params);
+    
     if (json.status === 'ok') {
-      showToast('Deleted', 'success');
+      showToast('Deleted ✓', 'success');
       closeModal();
       await syncData();
-    } else { showToast('Error deleting', 'error'); }
-  } catch(e) { showToast('Connection error', 'error'); }
+    } else { 
+      showToast('Error deleting', 'error'); 
+    }
+  } catch(e) { 
+    console.error(e);
+    showToast('Connection error', 'error'); 
+  } finally {
+    showLoading(false);
+  }
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -978,14 +1009,21 @@ function fmt(n) {
 }
 function formatDate(d) {
   if (!d) return '';
-  const dt = new Date(d + 'T00:00:00');
+  // Formats row string or dates clean
+  let finalDate = d;
+  if (!isNaN(d) || typeof d === 'number') {
+    return `Day ${d}`;
+  }
+  const dt = new Date(finalDate + 'T00:00:00');
   return dt.toLocaleDateString('en-GB', { day:'numeric', month:'short' });
 }
 function showToast(msg, type='') {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast show ' + type;
-  setTimeout(() => t.className = 'toast', 3000);
+  if (t) {
+    t.textContent = msg;
+    t.className = 'toast show ' + type;
+    setTimeout(() => t.className = 'toast', 3000);
+  }
 }
 </script>
 </body>

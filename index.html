@@ -702,27 +702,46 @@ function buildSummaryMonthSelect() {
 
 // ── Sync / Fetch data ────────────────────────────────────────────────────────
 async function syncData() {
-  const btn = document.getElementById('syncBtn');
-  btn.classList.add('spinning');
+  showLoading(true);
   try {
-    const res = await fetch(SCRIPT_URL + '?action=getAll');
-    const json = await res.json();
+    // Create a unique temporary global handler name
+    const callbackName = 'jsonp_' + Math.random().toString(36).substr(2, 9);
+    
+    // Set up a promise that resolves when Google returns the data script package
+    const dataPromise = new Promise((resolve, reject) => {
+      window[callbackName] = function(data) {
+        delete window[callbackName];
+        resolve(data);
+      };
+      
+      // Inject a script tag to safely process the cross-origin request
+      const script = document.createElement('script');
+      script.src = `${SCRIPT_URL}?action=getAll&callback=${callbackName}`;
+      script.onerror = () => reject(new Error('Network structure failure'));
+      document.body.appendChild(script);
+    });
+
+    const json = await dataPromise;
+
     if (json.status === 'ok') {
-      allData = json.data;
-      renderBrowse();
-      renderSummary();
-      showToast('Synced ✓', 'success');
+      // Process database tables natively inside your app UI loops
+      db.dashboard = json.dashboard;
+      db.expenses = json.expenses;
+      localStorage.setItem('expense_db', JSON.stringify(db));
+      
+      renderDashboard();
+      renderMonthDetails();
+      updateMonthSelectors();
+      showToast('Synced with Google Sheet ✓', 'success');
     } else {
-      showToast('Sync failed', 'error');
+      showToast('Database syncing error', 'error');
     }
-  } catch (e) {
-    if (SCRIPT_URL === '') {
-      showToast('Configure script URL first', 'error');
-    } else {
-      showToast('Connection error', 'error');
-    }
+  } catch(e) {
+    console.error(e);
+    showToast('Connection error', 'error');
+  } finally {
+    showLoading(false);
   }
-  btn.classList.remove('spinning');
 }
 
 // ── Add Expense ──────────────────────────────────────────────────────────────

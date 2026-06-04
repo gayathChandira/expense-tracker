@@ -564,7 +564,7 @@
 <script>
 // ── Config ──────────────────────────────────────────────────────────────────
 // REPLACE this URL with your Google Apps Script deployment URL
-const SCRIPT_URL = 'YOUR_APPS_SCRIPT_URL_HERE';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz1OXtkXc4QJk8Z-fkaIghERb3XOx7JqgK2cFdMDWbhdm82FZS86ymVsGpT_n5ADtF5/exec';
 
 const MONTHS = ['January','February','March','April','May','June',
                 'July','August','September','October','November','December'];
@@ -716,7 +716,7 @@ async function syncData() {
       showToast('Sync failed', 'error');
     }
   } catch (e) {
-    if (SCRIPT_URL === 'YOUR_APPS_SCRIPT_URL_HERE') {
+    if (SCRIPT_URL === '') {
       showToast('Configure script URL first', 'error');
     } else {
       showToast('Connection error', 'error');

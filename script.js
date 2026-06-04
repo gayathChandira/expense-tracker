@@ -334,7 +334,8 @@ function renderSummary() {
 
 // ── Edit/Delete Modal Controls ─────────────────────────────────────────────────
 function openEditModal(expense) {
-  document.getElementById('edit-row-index').value = expense.row;
+  const rowValue = expense.rowIndex || expense.row || '';
+  document.getElementById('edit-row-index').value = rowValue;
   document.getElementById('edit-date').value = expense.date;
   document.getElementById('edit-amount').value = expense.amount;
   document.getElementById('edit-notes').value = expense.notes || '';

@@ -25,25 +25,45 @@ function verifyConfig() {
 /**
  * Sends request safely via POST using x-www-form-urlencoded params
  */
-async function requestSecureData(queryString) {
-  if (!verifyConfig()) {
+// ── Network Engine (JSONP Implementation) ───────────────────────────────────
+function requestSecureData(queryString) {
+  if (!CONFIG.SCRIPT_URL || CONFIG.SCRIPT_URL.includes('YOUR_DEPLOYMENT_ID')) {
     throw new Error("Google Apps Script URL is not configured in config.js");
   }
 
-  const response = await fetch(CONFIG.SCRIPT_URL, {
-    method: 'POST',
-    mode: 'cors',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: queryString
+  return new Promise((resolve, reject) => {
+    const callbackName = 'jsonp_' + Math.random().toString(36).substr(2, 9);
+    
+    const timeoutId = setTimeout(() => {
+      cleanup();
+      reject(new Error("Connection timeout from Google Sheets."));
+    }, 15000);
+
+    window[callbackName] = function(data) {
+      cleanup();
+      resolve(data);
+    };
+
+    function cleanup() {
+      clearTimeout(timeoutId);
+      const scriptNode = document.getElementById(callbackName);
+      if (scriptNode) scriptNode.remove();
+      delete window[callbackName];
+    }
+
+    const separator = CONFIG.SCRIPT_URL.indexOf('?') === -1 ? '?' : '&';
+    const fullUrl = `${CONFIG.SCRIPT_URL}${separator}${queryString}&callback=${callbackName}`;
+
+    const script = document.createElement('script');
+    script.id = callbackName;
+    script.src = fullUrl;
+    script.onerror = () => {
+      cleanup();
+      reject(new Error("Network connection breakdown."));
+    };
+
+    document.body.appendChild(script);
   });
-
-  if (!response.ok) {
-    throw new Error(`Network unexpected response status: ${response.status}`);
-  }
-
-  return await response.json();
 }
 
 // ── Document Event Initialization ─────────────────────────────────────────────
@@ -153,24 +173,23 @@ function showLoading(show) {
 }
 
 // ── Sync Database ────────────────────────────────────────────────────────────
+// ── Fixed Form Submissions & Mutations Functions ─────────────────────────────
 async function syncData() {
   showLoading(true);
   try {
-    const json = await requestSecureData("action=get");
-    if (json && json.status === 'ok') {
+    // Calls out request logic using clean GET parameter syntax
+    const json = await requestSecureData('action=fetchAll');
+    if (json.status === 'ok') {
       allData = json.expenses || {};
       localStorage.setItem('expense_db', JSON.stringify(allData));
       
-      // Live refresh of UI views
-      if (document.getElementById('screen-browse').classList.contains('active')) {
-        renderBrowse();
+      if (json.dashboard) {
+        renderDashboardData(json.dashboard);
       }
-      if (document.getElementById('screen-summary').classList.contains('active')) {
-        renderSummary();
-      }
-      showToast('Synced with Google Sheet ✓', 'success');
+      initApp();
+      showToast('Synced with Google Sheets ✓', 'success');
     } else {
-      showToast('Database syncing error', 'error');
+      showToast('Sync failed: ' + json.message, 'error');
     }
   } catch(e) {
     console.error(e);
@@ -336,20 +355,21 @@ function closeModal() {
 async function updateExpense() {
   const row = document.getElementById('edit-row-index').value;
   const date = document.getElementById('edit-date').value;
-  const amount = parseFloat(document.getElementById('edit-amount').value);
-  const notes = document.getElementById('edit-notes').value.trim();
+  const amount = document.getElementById('edit-amount').value;
+  const notes = document.getElementById('edit-notes').value;
 
-  if (!date) return showToast('Pick a date', 'error');
-  if (!editCat) return showToast('Select a category', 'error');
-  if (!editPaid) return showToast('Select who paid', 'error');
-  if (!amount || amount <= 0) return showToast('Enter valid amount', 'error');
+  if (!date || !editCat || !editPaid || !amount) {
+    showToast('Fields cannot be empty', 'error');
+    return;
+  }
 
+  const month = MONTHS[new Date(date + 'T00:00:00').getMonth()];
   showLoading(true);
-  const month = monthFromDate(date);
+
   try {
-    const params = `action=update&row=${row}&month=${encodeURIComponent(month)}&date=${encodeURIComponent(date)}&category=${encodeURIComponent(editCat)}&paidBy=${encodeURIComponent(editPaid)}&amount=${encodeURIComponent(amount)}&notes=${encodeURIComponent(notes)}`;
+    const params = `action=update&row=${row}&month=${encodeURIComponent(month)}&date=${date}&category=${encodeURIComponent(editCat)}&paidBy=${encodeURIComponent(editPaid)}&amount=${amount}&notes=${encodeURIComponent(notes)}`;
     const json = await requestSecureData(params);
-    
+
     if (json.status === 'ok') {
       showToast('Updated ✓', 'success');
       closeModal();
@@ -360,7 +380,7 @@ async function updateExpense() {
   } catch(e) {
     console.error(e);
     showToast('Connection error', 'error');
-  } Hallucinate; {
+  } finally {
     showLoading(false);
   }
 }
@@ -368,7 +388,8 @@ async function updateExpense() {
 async function deleteExpense() {
   if (!confirm('Delete this expense?')) return;
   const row = document.getElementById('edit-row-index').value;
-  const month = monthFromDate(document.getElementById('edit-date').value);
+  const date = document.getElementById('edit-date').value;
+  const month = MONTHS[new Date(date + 'T00:00:00').getMonth()];
   
   showLoading(true);
   try {

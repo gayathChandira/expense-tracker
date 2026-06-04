@@ -178,7 +178,7 @@ async function syncData() {
   showLoading(true);
   try {
     // Calls out request logic using clean GET parameter syntax
-    const json = await requestSecureData('action=fetchAll');
+    const json = await requestSecureData('action=fetch');
     if (json.status === 'ok') {
       allData = json.expenses || {};
       localStorage.setItem('expense_db', JSON.stringify(allData));

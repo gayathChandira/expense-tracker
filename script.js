@@ -102,6 +102,22 @@ function today() {
   return new Date().toISOString().split('T')[0]; 
 }
 
+function parseExpenseDateForInput(expense) {
+  if (!expense || expense.date == null) return '';
+  const raw = String(expense.date).trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
+
+  const monthName = expense.month || document.getElementById('browse-months')?.querySelector('.month-chip.active')?.dataset.month || MONTHS[new Date().getMonth()];
+  const day = Number(raw);
+  if (!day || day < 1 || day > 31) return '';
+
+  const monthIndex = MONTHS.indexOf(monthName);
+  const year = new Date().getFullYear();
+  const date = new Date(year, monthIndex, day);
+  if (date.getMonth() !== monthIndex) return '';
+  return date.toISOString().split('T')[0];
+}
+
 // ── Navigation ───────────────────────────────────────────────────────────────
 function showScreen(name) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -183,10 +199,8 @@ async function syncData() {
       allData = json.expenses || {};
       localStorage.setItem('expense_db', JSON.stringify(allData));
       
-      if (json.dashboard) {
-        renderDashboardData(json.dashboard);
-      }
-      initApp();
+      buildMonthSelector();
+      renderBrowse();
       showToast('Synced with Google Sheets ✓', 'success');
     } else {
       showToast('Sync failed: ' + json.message, 'error');
@@ -252,7 +266,7 @@ function renderBrowse() {
   if (!list) return;
   list.innerHTML = '';
 
-  let arr = allData[selectedMonth] || [];
+  let arr = (allData[selectedMonth] || []).map(exp => ({ ...exp, month: selectedMonth }));
 
   // Sort descending dates
   arr.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -336,7 +350,7 @@ function renderSummary() {
 function openEditModal(expense) {
   const rowValue = expense.rowIndex || expense.row || '';
   document.getElementById('edit-row-index').value = rowValue;
-  document.getElementById('edit-date').value = expense.date;
+  document.getElementById('edit-date').value = parseExpenseDateForInput(expense);
   document.getElementById('edit-amount').value = expense.amount;
   document.getElementById('edit-notes').value = expense.notes || '';
   
@@ -373,7 +387,7 @@ async function updateExpense() {
   showLoading(true);
 
   try {
-    const params = `action=update&rowIndex=${row}&month=${encodeURIComponent(month)}&date=${date}&category=${encodeURIComponent(editCat)}&paidBy=${encodeURIComponent(editPaid)}&amount=${amount}&notes=${encodeURIComponent(notes)}`;
+    const params = `action=update&rowIndex=${row}&row=${row}&month=${encodeURIComponent(month)}&date=${date}&category=${encodeURIComponent(editCat)}&paidBy=${encodeURIComponent(editPaid)}&amount=${amount}&notes=${encodeURIComponent(notes)}`;
     console.debug('updateExpense params', params);
     const json = await requestSecureData(params);
 
@@ -405,7 +419,7 @@ async function deleteExpense() {
   
   showLoading(true);
   try {
-    const params = `action=delete&rowIndex=${row}&month=${encodeURIComponent(month)}`;
+    const params = `action=delete&rowIndex=${row}&row=${row}&month=${encodeURIComponent(month)}`;
     console.debug('deleteExpense params', params);
     const json = await requestSecureData(params);
     

@@ -364,11 +364,17 @@ async function updateExpense() {
     return;
   }
 
+  if (!row) {
+    showToast('Unable to locate row index', 'error');
+    return;
+  }
+
   const month = MONTHS[new Date(date + 'T00:00:00').getMonth()];
   showLoading(true);
 
   try {
-    const params = `action=update&row=${row}&month=${encodeURIComponent(month)}&date=${date}&category=${encodeURIComponent(editCat)}&paidBy=${encodeURIComponent(editPaid)}&amount=${amount}&notes=${encodeURIComponent(notes)}`;
+    const params = `action=update&rowIndex=${row}&month=${encodeURIComponent(month)}&date=${date}&category=${encodeURIComponent(editCat)}&paidBy=${encodeURIComponent(editPaid)}&amount=${amount}&notes=${encodeURIComponent(notes)}`;
+    console.debug('updateExpense params', params);
     const json = await requestSecureData(params);
 
     if (json.status === 'ok') {
@@ -390,11 +396,17 @@ async function deleteExpense() {
   if (!confirm('Delete this expense?')) return;
   const row = document.getElementById('edit-row-index').value;
   const date = document.getElementById('edit-date').value;
+  if (!row) {
+    showToast('Unable to locate row index', 'error');
+    return;
+  }
+
   const month = MONTHS[new Date(date + 'T00:00:00').getMonth()];
   
   showLoading(true);
   try {
-    const params = `action=delete&row=${row}&month=${encodeURIComponent(month)}`;
+    const params = `action=delete&rowIndex=${row}&month=${encodeURIComponent(month)}`;
+    console.debug('deleteExpense params', params);
     const json = await requestSecureData(params);
     
     if (json.status === 'ok') {

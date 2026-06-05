@@ -320,13 +320,11 @@ function renderSummary() {
   const total = data.reduce((s, e) => s + parseFloat(e.amount || 0), 0);
   const gayath = data.filter(e => e.paidBy === 'Gayath').reduce((s, e) => s + parseFloat(e.amount || 0), 0);
   const dharani = data.filter(e => e.paidBy === 'Dharani').reduce((s, e) => s + parseFloat(e.amount || 0), 0);
-  const both = data.filter(e => e.paidBy === 'Both').reduce((s, e) => s + parseFloat(e.amount || 0), 0);
 
   document.getElementById('hero-total').textContent = 'LKR ' + fmt(total);
   document.getElementById('hero-month').textContent = month;
   document.getElementById('breakdown-gayath').textContent = 'LKR ' + fmt(gayath);
   document.getElementById('breakdown-dharani').textContent = 'LKR ' + fmt(dharani);
-  document.getElementById('breakdown-both').textContent = 'LKR ' + fmt(both);
 
   // Group by category totals calculations
   const cats = { 'Food': 0, 'Transport': 0, 'Bills': 0, 'Groceries': 0, 'Entertainment': 0, 'Medicine': 0, 'Other': 0 };

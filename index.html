@@ -30,11 +30,30 @@
     --nav-height:  68px;
   }
 
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --plum:        #7D3C98;
+      --plum-mid:    #A855C1;
+      --plum-light:  #D8B4FE;
+      --plum-faint:  #2D1F3F;
+      --cream:       #1A1625;
+      --cream-dark:  #2D2438;
+      --text:        #F3E8FF;
+      --text-mid:    #D8BFD8;
+      --text-light:  #A89BB5;
+      --white:       #0F0D12;
+      --success:     #10B981;
+      --danger:      #EF4444;
+      --shadow:      0 4px 24px rgba(0,0,0,0.3);
+      --shadow-lg:   0 8px 40px rgba(0,0,0,0.5);
+    }
+  }
+
   /* ── Reset ────────────────────────────────────────────────── */
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; background: var(--cream); font-family: 'DM Sans', sans-serif; color: var(--text); }
+  html, body { height: 100%; background: var(--cream); font-family: 'DM Sans', sans-serif; color: var(--text); transition: background 0.3s, color 0.3s; }
   button { cursor: pointer; border: none; background: none; font-family: inherit; }
-  input, select, textarea { font-family: inherit; }
+  input, select, textarea { font-family: inherit; background: var(--cream); color: var(--text); }
 
   /* ── App shell ────────────────────────────────────────────── */
   #app { max-width: 480px; margin: 0 auto; min-height: 100dvh; position: relative; overflow: hidden; }
@@ -368,7 +387,6 @@
         <div class="paid-group" id="paid-pills">
           <div class="paid-pill" data-val="Gayath">👤 Gayath</div>
           <div class="paid-pill" data-val="Dharani">👤 Dharani</div>
-          <div class="paid-pill" data-val="Both">👥 Both</div>
         </div>
       </div>
 
@@ -439,10 +457,6 @@
       <div class="breakdown-row">
         <div class="breakdown-label"><span style="color:#7C3AED">👤</span> Dharani Paid</div>
         <div class="breakdown-val" id="breakdown-dharani">LKR 0.00</div>
-      </div>
-      <div class="breakdown-row">
-        <div class="breakdown-label"><span style="color:#059669">👥</span> Shared (Both)</div>
-        <div class="breakdown-val" id="breakdown-both">LKR 0.00</div>
       </div>
     </div>
 

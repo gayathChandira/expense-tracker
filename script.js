@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Expense Tracker - Main Core Logic
  */
 
@@ -94,14 +94,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  document.querySelectorAll('.paid-filter-chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      document.querySelectorAll('.paid-filter-chip').forEach(c => c.classList.remove('active'));
+  const paidFilterBar = document.getElementById('paid-filter-bar');
+  if (paidFilterBar) {
+    paidFilterBar.addEventListener('click', (event) => {
+      const chip = event.target.closest('.paid-filter-chip');
+      if (!chip) return;
+      paidFilterBar.querySelectorAll('.paid-filter-chip').forEach(c => c.classList.remove('active'));
       chip.classList.add('active');
       currentBrowsePaidFilter = chip.dataset.paid;
       renderBrowse();
     });
-  });
+  }
 
   // Verify URL and start sync routine
   verifyConfig();
@@ -297,8 +300,8 @@ function renderBrowse() {
   }
 
   const paidMeta = {
-    'Gayath':  { icon: '👤', color: '#1D4ED8' },
-    'Dharani': { icon: '👤', color: '#7C3AED' },
+    'Gayath':  { icon: '\u{1F468}', color: '#1D4ED8' },
+    'Dharani': { icon: '👩', color: '#7C3AED' },
     'Both':    { icon: '👥', color: '#059669' }
   };
   const catIcons = { 'Food': '🍽️', 'Transport': '🚗', 'Bills': '💡', 'Groceries': '🛒', 'Entertainment': '🎬', 'Medicine': '💊', 'Other': '📦' };
@@ -318,7 +321,7 @@ function renderBrowse() {
       </div>
       <div class="expense-right">
         <div class="expense-amount">LKR ${fmt(e.amount)}</div>
-        <div class="expense-paid" style="color:${pm.color}">${e.paidBy}</div>
+        <div class="expense-paid" style="color:${pm.color}">${pm.icon} ${e.paidBy}</div>
       </div>
     </div>`;
   });
@@ -473,3 +476,4 @@ function showToast(msg, type = '') {
   clearTimeout(window.toastTimeout);
   window.toastTimeout = setTimeout(() => { t.classList.remove('show'); }, 3000);
 }
+

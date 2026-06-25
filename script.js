@@ -9,6 +9,7 @@ let selectedPaid = '';
 let editCat = '';
 let editPaid = '';
 let currentBrowseFilter = 'All';
+let currentBrowsePaidFilter = 'Both';
 
 // Configuration check display
 function verifyConfig() {
@@ -89,6 +90,15 @@ document.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
       chip.classList.add('active');
       currentBrowseFilter = chip.dataset.filter;
+      renderBrowse();
+    });
+  });
+
+  document.querySelectorAll('.paid-filter-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.paid-filter-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      currentBrowsePaidFilter = chip.dataset.paid;
       renderBrowse();
     });
   });
@@ -274,6 +284,11 @@ function renderBrowse() {
   // Category filter criteria mapping
   if (currentBrowseFilter !== 'All') {
     arr = arr.filter(e => e.category === currentBrowseFilter);
+  }
+
+  // Paid-by filter criteria mapping
+  if (currentBrowsePaidFilter !== 'Both') {
+    arr = arr.filter(e => e.paidBy === currentBrowsePaidFilter);
   }
 
   if (arr.length === 0) {

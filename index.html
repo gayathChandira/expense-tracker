@@ -226,6 +226,22 @@
   }
   .filter-chip.active { background: var(--plum); border-color: var(--plum); color: white; }
 
+  .paid-filter-bar {
+    display: flex; gap: 8px; margin-bottom: 14px;
+    overflow-x: auto; padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+  .paid-filter-bar::-webkit-scrollbar { display: none; }
+  .paid-filter-chip {
+    padding: 7px 14px; border-radius: 999px;
+    font-size: 12px; font-weight: 600;
+    border: 1.5px solid var(--cream-dark);
+    color: var(--text-mid); background: var(--white);
+    white-space: nowrap; cursor: pointer; transition: all 0.18s;
+    flex-shrink: 0;
+  }
+  .paid-filter-chip.active { background: var(--plum); border-color: var(--plum); color: white; }
+
   .month-selector {
     display: flex; gap: 8px; margin-bottom: 14px;
     overflow-x: auto; padding-bottom: 4px; scrollbar-width: none;
@@ -414,6 +430,12 @@
       <div class="filter-chip" data-filter="Entertainment">🎬 Entertainment</div>
       <div class="filter-chip" data-filter="Medicine">💊 Medicine</div>
       <div class="filter-chip" data-filter="Other">📦 Other</div>
+    </div>
+
+    <div class="paid-filter-bar" id="paid-filter-bar">
+      <div class="paid-filter-chip active" data-paid="Both">Both</div>
+      <div class="paid-filter-chip" data-paid="Gayath">👤 Gayath</div>
+      <div class="paid-filter-chip" data-paid="Dharani">👤 Dharani</div>
     </div>
 
     <div class="month-selector" id="browse-months"></div>
